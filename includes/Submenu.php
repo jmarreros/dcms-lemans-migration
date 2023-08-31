@@ -26,7 +26,7 @@ class Submenu {
 
 	// Callback, show view
 	public function submenu_page_callback(): void {
-		$mensaje = mensaje();
+
 		include_once( DCMS_LEMANS_PATH . '/views/main-screen.php' );
 	}
 }
