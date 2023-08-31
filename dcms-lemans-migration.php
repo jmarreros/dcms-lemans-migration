@@ -37,6 +37,13 @@ final class Loader {
 		define( 'DCMS_LEMANS_SUBMENU', 'tools.php' );
 	}
 
+	// Load all the files we need
+//	public function load_includes(): void {
+//		include_once( DCMS_LEMANS_PATH . '/helpers/general.php' );
+//		include_once( DCMS_LEMANS_PATH . '/includes/plugin.php' );
+//		include_once( DCMS_LEMANS_PATH . '/includes/submenu.php' );
+//	}
+
 	// Load tex domain
 	public function load_domain() {
 		add_action( 'plugins_loaded', function () {
@@ -57,6 +64,7 @@ final class Loader {
 	// Initialize all
 	public function init(): void {
 		$this->define_constants();
+//		$this->load_includes();
 		$this->load_domain();
 		$this->add_link_plugin();
 		new Plugin();
