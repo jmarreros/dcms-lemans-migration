@@ -14,7 +14,7 @@ class Configuration {
 
 		$paths = get_urls_menu();
 
-		$external->create_parent_category( $paths[0] );
+		$external->migrate_categories( $paths[0] );
 
 		$res = [ 'message' => "categorías migradas", 'status' => 1, 'data' => null ];
 		wp_send_json( $res );
