@@ -14,13 +14,12 @@ class ExternalDB {
 	}
 
 	public function migrate_categories( $path ) {
-		$this->create_parent_category( $path );
-
-		// TODO : find id Woo parent category to assign to current category
-		$this->create_current_category( $path );
+		$woo_last_id_category = $this->create_parent_category( $path );
+		$woo_last_id_category = $this->create_current_category( $path, $woo_last_id_category );
+		$this->create_child_categories( $path, $woo_last_id_category );
 	}
 
-	private function create_parent_category( $path ) {
+	private function create_parent_category( $path ): int {
 		$wpdb = $this->connection();
 
 		// Get current menu path data
@@ -50,10 +49,10 @@ class ExternalDB {
 			$data_categories[] = $data_category;
 		} while ( $parent_level != 0 );
 
-		$this->create_categories( $data_categories, true );
+		return $this->create_categories( $data_categories, true );
 	}
 
-	private function create_current_category( $path ): void {
+	private function create_current_category( $path, $woo_last_id_category ): int {
 		$wpdb = $this->connection();
 
 		// Get current menu path data
@@ -74,16 +73,48 @@ class ExternalDB {
 
 		$data_categories[] = $data_category;
 
-		$this->create_categories( $data_categories, false );
+		return $this->create_categories( $data_categories, false, $woo_last_id_category );
 	}
 
+	private function create_child_categories( $path, $woo_last_id_category, $current_id_category = 0 ): void {
+		$wpdb = $this->connection();
 
-	private function create_categories( $data_categories, $ancestors ): void {
+		// Get current menu path data
+		if ( ! empty( $path ) ) {
+			$sql                 = "SELECT id  FROM evhfm_menu WHERE `path` = '$path'";
+			$current_id_category = $wpdb->get_var( $sql );
+		}
+
+		// Get all subcategories
+		$sql   = "SELECT id, title, alias, link, parent_id, level, ordering  FROM evhfm_menu WHERE parent_id = $current_id_category";
+		$items = $wpdb->get_results( $sql );
+
+		foreach ( $items as $item ) {
+			$data_categories = [];
+
+			// Data parent menu
+			$data_category = [
+				'id'        => $item->id,
+				'title'     => $item->title,
+				'slug'      => $item->alias,
+				'order'     => $item->ordering,
+				'parent_id' => $item->parent_id,
+				'level'     => $item->level,
+			];
+
+			$data_categories[]        = $data_category;
+			$woo_last_id_sub_category = $this->create_categories( $data_categories, false, $woo_last_id_category );
+			$this->create_child_categories( '', $woo_last_id_sub_category, intval( $item->id ) );
+		}
+
+	}
+	
+	private function create_categories( $data_categories, $ancestors, $woo_parent_id = null ): int {
 		if ( $ancestors ) {
 			$data_categories = array_reverse( $data_categories );
 		}
 
-		$woo_parent_id = null;
+		$woo_category_id = 0;
 
 		foreach ( $data_categories as $data_category ) {
 			$category_title = $data_category['title'];
@@ -91,8 +122,6 @@ class ExternalDB {
 			$category_id    = $data_category['id'];
 			$category_level = $data_category['level'];
 			$category_order = $data_category['order'];
-
-			$woo_category_id = 0;
 
 			// Check if category exists
 			$term_data = term_exists( $category_title, 'product_cat' );
@@ -109,21 +138,21 @@ class ExternalDB {
 
 				if ( ! is_wp_error( $term_data ) ) {
 					$woo_category_id = $term_data['term_id'];
+					add_term_meta( $woo_category_id, 'external_id', $category_id, true );
+					add_term_meta( $woo_category_id, 'external_level', $category_level, true );
+					update_term_meta( $woo_category_id, 'order', $category_order );
+				} else {
+					$woo_category_id = 0;
+					error_log( print_r( $term_data->get_error_message(), true ) );
+					error_log( print_r( "Error to create category", true ) );
+					break;
 				}
 			}
 
-			if ( $woo_category_id != 0 ) {
-				// Add metadata to term category
-				add_term_meta( $woo_category_id, 'external_id', $category_id, true );
-				add_term_meta( $woo_category_id, 'external_level', $category_level, true );
-				update_term_meta( $woo_category_id, 'order', $category_order );
-				$woo_parent_id = $woo_category_id;
-			} else {
-				error_log( print_r( "Error to create category", true ) );
-				break;
-			}
-
+			$woo_parent_id = $woo_category_id;
 		}
+
+		return $woo_category_id;
 	}
 
 }
