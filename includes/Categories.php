@@ -16,12 +16,16 @@ class Categories {
 	public function migrate_categories( $path ) {
 		$woo_last_id_category = $this->create_parent_category( $path );
 		$woo_last_id_category = $this->create_current_category( $path, $woo_last_id_category );
-//		$this->create_child_categories( $path, $woo_last_id_category );
+		$this->create_child_categories( $path, $woo_last_id_category );
 	}
 
-	private function create_parent_category( $path ): int {
+	private function create_parent_category( $path ): ?int {
 		// Get current menu path data
 		$path_parent_id = $this->externalDb->get_menu_parent_id_from_path( $path );
+
+		if ( is_null( $path_parent_id ) ) {
+			return null;
+		}
 
 		$data_categories = [];
 		// Store data categories
@@ -118,6 +122,8 @@ class Categories {
 			// Category exists, get id_category
 			if ( ! is_null( $term_data ) ) {
 				$woo_category_id = $term_data['term_id'];
+
+				error_log( print_r( 'Categoría existe : ' . $category_title . '-' . $woo_category_id, true ) );
 			} // Category not exists, create category
 			else {
 				$term_data = wp_insert_term( $category_title, 'product_cat', [
@@ -133,23 +139,24 @@ class Categories {
 					add_term_meta( $woo_category_id, 'external_level', $category_level, true );
 					update_term_meta( $woo_category_id, 'order', $category_order );
 
+
+					error_log( print_r( 'Categoría agregada : ' . $category_title . '-' . $woo_category_id, true ) );
+
 					//Add image
-					$link = $this->externalDb->get_link_from_id_menu( $external_menu_id );
-
-					if ( ! is_null( $link ) ) {
-						// TODO: Find ID category before
-						$image_url = $this->externalDb->get_url_image_category( $external_menu_id );
-
-						$id_image = media_sideload_image( $link, 0, null, 'id' );
-						if ( ! is_wp_error( $id_image ) ) {
-							update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
-						}
-					}
-
-//					if ( ! is_null( $image_url ) ) {
-//						$id_image = media_sideload_image( $image_url, 0, null, 'id' );
-//						if ( ! is_wp_error( $id_image ) ) {
-//							update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
+//					$link = $this->externalDb->get_link_from_id_menu( $external_menu_id );
+//
+//					if ( $link ) {
+//						$id_category = get_id_category_from_link( $link );
+//
+//						if ( $id_category ) {
+//							$image_url = $this->externalDb->get_url_image_category( $id_category );
+//							if ( $image_url ) {
+//								$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
+//								$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
+//								if ( ! is_wp_error( $id_image ) ) {
+//									update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
+//								}
+//							}
 //						}
 //					}
 

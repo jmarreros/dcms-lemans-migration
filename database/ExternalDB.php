@@ -14,7 +14,7 @@ class ExternalDB {
 	}
 
 
-	public function get_menu_parent_id_from_path( $path ): int {
+	public function get_menu_parent_id_from_path( $path ): ?int {
 		$wpdb = $this->connection();
 		// Get current menu path data
 		$sql = "SELECT parent_id FROM evhfm_menu WHERE `path` = '$path'";
@@ -33,7 +33,7 @@ class ExternalDB {
 		$wpdb = $this->connection();
 		// Get current menu path data
 		$sql = "SELECT id, title, alias, link, parent_id, level, ordering  FROM evhfm_menu WHERE `path` = '$path'";
-
+		
 		return $wpdb->get_row( $sql );
 	}
 
@@ -61,7 +61,7 @@ class ExternalDB {
 	}
 
 
-	public function get_link_from_id_menu( $id_menu ) {
+	public function get_link_from_id_menu( $id_menu ): ?string {
 		$wpdb = $this->connection();
 		$sql  = "SELECT link FROM evhfm_menu WHERE id = $id_menu";
 

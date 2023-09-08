@@ -15,9 +15,28 @@ if ( ! function_exists( 'get_urls_menu' ) ) {
 	function get_urls_menu(): array {
 		return [
 			"llantas-vehiculo-actual-italianas-adaptables/llantas-adaptables-italianas",
-//		"llantas-para-vehiculos-coches-clasicos/llantas-braid",
-//		"llantas-para-vehiculos-coches-clasicos/llantas-japan-racing",
-//		"llantas-vehiculo-actual-italianas-adaptables/llantas-carbonado"
+			"llantas-para-vehiculos-coches-clasicos/llantas-braid",
+			"llantas-para-vehiculos-coches-clasicos/llantas-japan-racing",
+			"llantas-vehiculo-actual-italianas-adaptables/llantas-carbonado",
+
+			"llantas-para-vehiculos-coches-clasicos/llantas-targa",
+			"llantas-para-vehiculos-coches-clasicos/llantas-cromodora",
+			"llantas-para-vehiculos-coches-clasicos/llantas-minilite-style",
+			"llantas-para-vehiculos-coches-clasicos/llantas-alpine-desing",
+			"llantas-para-vehiculos-coches-clasicos/llantas-lenso",
+
+			// TODO: revisar esta url que en realidad es la siguiente, hacer una redirección
+//			--"llantas-y-neumaticos/llantas-para-vehiculos-clasicos/llantas-lenso",
+//			--"llantas-y-neumaticos/clasicos-lemanscenter/llantas-para-vhiculo-clasico/llantas-targa",
+
+			"iluminacion/faros-y-accesorios",
+			"iluminacion/iluminacion/bombillas-y-leds",
+
+			"volantes/volantes-y-pinas",
+
+			"llantas-y-neumaticos/clasicos-lemanscenter/fundas-para-coches-clasicos",
+			"llantas-y-neumaticos/clasicos-lemanscenter/retrovisores",
+			"llantas-y-neumaticos/zona-equipamiento-automovil/competicion/instrumentacion-de-rally",
 		];
 	}
 }
@@ -33,8 +52,10 @@ if ( ! function_exists( 'dcms_include_files_library' ) ) {
 }
 
 if ( ! function_exists( 'get_id_category_from_link' ) ) {
-	function get_id_category_from_link( $link ) {
+	function get_id_category_from_link( $link ): ?int {
+		preg_match( '/.*virtuemart_category_id=(\d+).*/', $link, $matches );
 
+		return $matches[1] ?? null;
 	}
 }
 

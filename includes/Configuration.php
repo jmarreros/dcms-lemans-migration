@@ -13,7 +13,10 @@ class Configuration {
 
 		$paths = get_urls_menu();
 
-		$categories->migrate_categories( $paths[0] );
+		foreach ( $paths as $path ) {
+			error_log( print_r( "--- Path migrado: " . $path . " ---", true ) );
+			$categories->migrate_categories( $path );
+		}
 
 		$res = [ 'message' => "categorías migradas", 'status' => 1, 'data' => null ];
 		wp_send_json( $res );
