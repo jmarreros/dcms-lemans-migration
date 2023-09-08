@@ -50,4 +50,21 @@ class ExternalDB {
 
 		return $wpdb->get_var( $sql );
 	}
+
+	public function get_url_image_category( $id ): ?string {
+		$wpdb = $this->connection();
+		$sql  = "SELECT m.file_url  FROM evhfm_virtuemart_category_medias cm 
+				INNER JOIN evhfm_virtuemart_medias m ON cm.virtuemart_media_id = m.virtuemart_media_id
+				WHERE cm.virtuemart_category_id = $id  AND m.published = 1";
+
+		return $wpdb->get_var( $sql );
+	}
+
+
+	public function get_link_from_id_menu( $id_menu ) {
+		$wpdb = $this->connection();
+		$sql  = "SELECT link FROM evhfm_menu WHERE id = $id_menu";
+
+		return $wpdb->get_var( $sql );
+	}
 }

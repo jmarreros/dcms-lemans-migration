@@ -9,13 +9,14 @@ class Categories {
 	private ExternalDB $externalDb;
 
 	public function __construct() {
+		dcms_include_files_library();
 		$this->externalDb = new ExternalDB();
 	}
 
 	public function migrate_categories( $path ) {
 		$woo_last_id_category = $this->create_parent_category( $path );
 		$woo_last_id_category = $this->create_current_category( $path, $woo_last_id_category );
-		$this->create_child_categories( $path, $woo_last_id_category );
+//		$this->create_child_categories( $path, $woo_last_id_category );
 	}
 
 	private function create_parent_category( $path ): int {
@@ -105,11 +106,11 @@ class Categories {
 		$woo_category_id = 0;
 
 		foreach ( $data_categories as $data_category ) {
-			$category_title = $data_category['title'];
-			$category_slug  = $data_category['slug'];
-			$category_id    = $data_category['id'];
-			$category_level = $data_category['level'];
-			$category_order = $data_category['order'];
+			$category_title   = $data_category['title'];
+			$category_slug    = $data_category['slug'];
+			$external_menu_id = $data_category['id'];
+			$category_level   = $data_category['level'];
+			$category_order   = $data_category['order'];
 
 			// Check if category exists
 			$term_data = term_exists( $category_title, 'product_cat' );
@@ -126,9 +127,32 @@ class Categories {
 
 				if ( ! is_wp_error( $term_data ) ) {
 					$woo_category_id = $term_data['term_id'];
-					add_term_meta( $woo_category_id, 'external_id', $category_id, true );
+
+					// Add terms metadata
+					add_term_meta( $woo_category_id, 'external_id', $external_menu_id, true );
 					add_term_meta( $woo_category_id, 'external_level', $category_level, true );
 					update_term_meta( $woo_category_id, 'order', $category_order );
+
+					//Add image
+					$link = $this->externalDb->get_link_from_id_menu( $external_menu_id );
+
+					if ( ! is_null( $link ) ) {
+						// TODO: Find ID category before
+						$image_url = $this->externalDb->get_url_image_category( $external_menu_id );
+
+						$id_image = media_sideload_image( $link, 0, null, 'id' );
+						if ( ! is_wp_error( $id_image ) ) {
+							update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
+						}
+					}
+
+//					if ( ! is_null( $image_url ) ) {
+//						$id_image = media_sideload_image( $image_url, 0, null, 'id' );
+//						if ( ! is_wp_error( $id_image ) ) {
+//							update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
+//						}
+//					}
+
 				} else {
 					$woo_category_id = 0;
 					error_log( print_r( $term_data->get_error_message(), true ) );
