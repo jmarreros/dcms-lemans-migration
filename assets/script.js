@@ -36,5 +36,38 @@
             });
     }
 
+
+    // Click process button
+    $('#process-migration-products').click(function (e) {
+        e.preventDefault();
+        process_migration_step(1);
+    });
+
+    // Process every step
+    function process_migration_step(step, total = null) {
+
+        $.ajax({
+            url: dcms_lemans.ajaxurl,
+            type: 'post',
+            data: {
+                action: 'dcms_process_batch_ajax_migration',
+                nonce: dcms_lemans.nonce_lemans,
+                total,
+                step,
+            },
+            dataType: 'json',
+        })
+            .done(function (res) {
+                if (res.status === 0) {
+                    $('.process-info').html(`<strong>Procesados ${res.count} de ${res.total}
+                                        <br> Paso: ${res.step}</strong>`);
+                    process_migration_step(res.step, res.total)
+                } else {
+                    $('.process-info').text('Finalizado');
+                }
+            });
+    }
+
+
 })(jQuery);
 

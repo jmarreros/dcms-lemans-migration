@@ -19,4 +19,26 @@
         </tbody>
     </table>
 
+
+    <hr>
+
+    <table class="form-table migrate-products">
+        <tbody>
+        <tr id="migrate-products">
+            <th scope="row">
+				<?php _e( 'Migrate products', 'lemans-migration' ) ?>
+            </th>
+            <td>
+                <div style="margin-bottom: 10px">Subir el archivo <strong>data.csv</strong> a la raíz del sitio</div>
+                <button id='process-migration-products' class="button button-primary">
+					<?php _e( 'Migrate products', 'lemans-migration' ); ?>
+                </button>
+
+                <div class="process-info" style="margin-top:10px"></div>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
 </section>

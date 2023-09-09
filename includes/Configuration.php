@@ -6,20 +6,17 @@ namespace dcms\lemans\includes;
 class Configuration {
 	public function __construct() {
 		add_action( 'wp_ajax_dcms_migrate_initial_category', [ $this, 'migrate_initial_category' ] );
+		add_action( 'wp_ajax_dcms_process_batch_ajax_migration', [ $this, 'batch_process_ajax_migration_products' ] );
 	}
 
 	public function migrate_initial_category() {
-		$categories = new Categories();
+		$process_categories = new Process();
+		$process_categories->migrate_categories();
+	}
 
-		$paths = get_urls_menu();
-
-		foreach ( $paths as $path ) {
-			error_log( print_r( "--- Path migrado: " . $path . " ---", true ) );
-			$categories->migrate_categories( $path );
-		}
-
-		$res = [ 'message' => "categorías migradas", 'status' => 1, 'data' => null ];
-		wp_send_json( $res );
+	public function batch_process_ajax_migration_products() {
+		$process_products = new Process();
+		$process_products->migrate_batch_products();
 	}
 
 }
