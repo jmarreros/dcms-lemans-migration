@@ -10,9 +10,11 @@
 // Reuse code generic ajax call with jquery
     function dcms_generic_ajax_call(selector_container, action_method) {
         $.ajax({
+            async: true,
             url: dcms_lemans.ajaxurl,
             type: 'post',
             dataType: 'json',
+            timeout: 60000,
             data: {
                 action: action_method,
                 nonce: dcms_lemans.nonce_lemans
@@ -28,10 +30,11 @@
                 console.log(res);
             })
             .always(function () {
-                $(selector_container + ' .button').prop('disabled', false);
+                // $(selector_container + ' .button').prop('disabled', false);
+                $(selector_container + ' .msg-btn').text('Revisa el archivo error log para ver el progreso');
                 $(selector_container + ' .loading').addClass('hide');
             });
     }
-    
+
 })(jQuery);
 
