@@ -2,8 +2,9 @@
 
 namespace dcms\lemans\includes;
 
+use SplFileObject;
+
 class Process {
-	const TOTAL_PRODUCTS = 3800; // Products in the csv
 
 	public function migrate_categories() {
 		$categories = new Categories();
@@ -31,11 +32,14 @@ class Process {
 		error_log( "step: " . $step . " - count: " . $count );
 		// ----
 
+		// TODO: contar la cantidad de registros para el total del archivo data.csv
+		error_log( print_r( "Total: $total", true ) );
+
 		$step ++;
 
 		// Obtenemos el total
 		if ( ! $total ) {
-			$total = self::TOTAL_PRODUCTS;
+			$total = ( new FileCSV() )->get_total_rows_file();
 		}
 
 		// Comprobamos la finalización
@@ -55,4 +59,5 @@ class Process {
 
 		wp_send_json( $res );
 	}
+
 }
