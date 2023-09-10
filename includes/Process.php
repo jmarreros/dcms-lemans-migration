@@ -21,25 +21,24 @@ class Process {
 	}
 
 	public function migrate_batch_products() {
-		$batch = 100;
+		$batch = 10;
 		$total = $_REQUEST['total'] ?? false;
 		$step  = $_REQUEST['step'] ?? 0;
 		$count = $step * $batch;
 
+		$fileCSV = new FileCSV();
 
 		// Procesamos la información
-		sleep( 0.5 );
 		error_log( "step: " . $step . " - count: " . $count );
-		// ----
-
-		// TODO: contar la cantidad de registros para el total del archivo data.csv
-		error_log( print_r( "Total: $total", true ) );
+		$data = $fileCSV->get_data_range_csv_file( $count + 1, $count + $batch );
+		error_log( print_r( $data, true ) );
 
 		$step ++;
 
 		// Obtenemos el total
 		if ( ! $total ) {
-			$total = ( new FileCSV() )->get_total_rows_file();
+//			$total = $fileCSV->get_total_rows_file();
+			$total = 100;
 		}
 
 		// Comprobamos la finalización

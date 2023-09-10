@@ -40,7 +40,7 @@
     // Click process button
     $('#process-migration-products').click(function (e) {
         e.preventDefault();
-        process_migration_step(1);
+        process_migration_step(0);
     });
 
     // Process every step
