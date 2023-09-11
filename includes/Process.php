@@ -2,6 +2,7 @@
 
 namespace dcms\lemans\includes;
 
+use dcms\lemans\database\Database;
 use SplFileObject;
 
 class Process {
@@ -21,12 +22,13 @@ class Process {
 	}
 
 	public function migrate_batch_products() {
-		$batch = 5;
+		$batch = 100;
 		$total = $_REQUEST['total'] ?? false;
 		$step  = $_REQUEST['step'] ?? 0;
 		$count = $step * $batch;
 
 		$fileCSV = new FileCSV();
+		$db      = new Database();
 
 		// Procesamos la información
 		error_log( "step: " . $step . " - count: " . $count );
@@ -41,8 +43,20 @@ class Process {
 		// Get data range
 		$data = $fileCSV->get_data_range_csv_file( $count + 1, $length );
 
-		foreach ( $data as $item ) {
-			error_log( print_r( $item['product_name'] ?? '', true ) );
+		foreach ( $data as $row ) {
+
+			if ( ! empty( $row['category_id'] ) ) {
+
+				$ids_categories = array_map( 'intval', explode( '|', $row['category_id'] ) );
+
+				foreach ( $ids_categories as $id_category ) {
+					$id_woo_category = $db->get_woo_category_id_from_external_id( $id_category );
+					if ( $id_woo_category ) {
+						error_log( print_r( "Category Woo : " . $id_woo_category . " para " . $id_category, true ) );
+					}
+				}
+			}
+
 		}
 
 		// TODO:

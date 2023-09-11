@@ -14,7 +14,6 @@ class ExternalDB {
 		$this->cn = new wpdb( $database_user, $database_pass, $database_name, $database_server );
 	}
 
-
 	public function get_menu_parent_id_from_path( $path ): ?int {
 		$wpdb = $this->cn;
 		// Get current menu path data
@@ -68,4 +67,5 @@ class ExternalDB {
 
 		return $wpdb->get_var( $sql );
 	}
+	
 }

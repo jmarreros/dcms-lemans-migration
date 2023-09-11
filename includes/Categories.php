@@ -173,4 +173,8 @@ class Categories {
 		return $woo_category_id;
 	}
 
+
+	private function get_woo_category_from_external_id( $id_category ): ?int {
+		return null;
+	}
 }
