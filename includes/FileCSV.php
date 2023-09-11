@@ -15,7 +15,7 @@ class FileCSV {
 		return $file->key() + 1;
 	}
 
-	public function get_data_range_csv_file( $start, $end ): array {
+	public function get_data_range_csv_file( $start, $end ): ?array {
 		$file = new SplFileObject( self::FILE_NAME, 'r' );
 		$file->seek( $start );
 		$data = [];
@@ -27,8 +27,16 @@ class FileCSV {
 		$file->seek( 0 );
 		$header = str_getcsv( $file->current() );
 
-		return array_map( function ( $row ) use ( $header ) {
-			return array_combine( $header, str_getcsv( $row ) );
-		}, $data );
+		if ( $data ) {
+			$data = array_map( function ( $row ) use ( $header ) {
+				if ( count( str_getcsv( $row ) ) != count( $header ) ) {
+					return null;
+				}
+
+				return array_combine( $header, str_getcsv( $row ) );
+			}, $data );
+		}
+
+		return $data;
 	}
 }
