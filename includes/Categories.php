@@ -121,9 +121,8 @@ class Categories {
 
 			// Category exists, get id_category
 			if ( ! is_null( $term_data ) ) {
+				error_log( print_r( 'Category exists : ' . $category_title . '-' . $woo_category_id, true ) );
 				$woo_category_id = $term_data['term_id'];
-
-				error_log( print_r( 'Categoría existe : ' . $category_title . '-' . $woo_category_id, true ) );
 			} // Category not exists, create category
 			else {
 				$term_data = wp_insert_term( $category_title, 'product_cat', [
@@ -132,19 +131,20 @@ class Categories {
 				] );
 
 				if ( ! is_wp_error( $term_data ) ) {
+					error_log( print_r( 'Category added : ' . $category_title . '-' . $woo_category_id, true ) );
+
 					$woo_category_id = $term_data['term_id'];
-
-					// Add terms metadata
-					add_term_meta( $woo_category_id, 'external_id', $external_menu_id, true );
-					add_term_meta( $woo_category_id, 'external_level', $category_level, true );
-					update_term_meta( $woo_category_id, 'order', $category_order );
-
-					//Add image
-					$link = $this->externalDb->get_link_from_id_menu( $external_menu_id );
+					$link            = $this->externalDb->get_link_from_id_menu( $external_menu_id );
 
 					if ( $link ) {
 						$id_category = get_id_category_from_link( $link );
 
+						// Add terms metadata
+						add_term_meta( $woo_category_id, 'external_id', $id_category, true );
+						add_term_meta( $woo_category_id, 'external_level', $category_level, true );
+						update_term_meta( $woo_category_id, 'order', $category_order );
+
+						//Add image category
 						if ( $id_category ) {
 							$image_url = $this->externalDb->get_url_image_category( $id_category );
 							if ( $image_url ) {
@@ -156,8 +156,6 @@ class Categories {
 							}
 						}
 					}
-
-					error_log( print_r( 'Categoría agregada : ' . $category_title . '-' . $woo_category_id, true ) );
 
 				} else {
 					$woo_category_id = 0;

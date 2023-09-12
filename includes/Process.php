@@ -31,7 +31,7 @@ class Process {
 		$db      = new Database();
 
 		// Procesamos la información
-		error_log( "step: " . $step . " - count: " . $count );
+//		error_log( "step: " . $step . " - count: " . $count );
 
 		$length = $count + $batch;
 		if ( $total ) {
@@ -44,17 +44,16 @@ class Process {
 		$data = $fileCSV->get_data_range_csv_file( $count + 1, $length );
 
 		foreach ( $data as $row ) {
-
 			if ( ! empty( $row['category_id'] ) ) {
 
 				$ids_categories = array_map( 'intval', explode( '|', $row['category_id'] ) );
-
 				foreach ( $ids_categories as $id_category ) {
 					$id_woo_category = $db->get_woo_category_id_from_external_id( $id_category );
 					if ( $id_woo_category ) {
-						error_log( print_r( "Category Woo : " . $id_woo_category . " para " . $id_category, true ) );
+						error_log( print_r( "SKU: " . $row['product_sku'], true ) );
 					}
 				}
+
 			}
 
 		}
