@@ -29,6 +29,7 @@ class Process {
 
 		$fileCSV = new FileCSV();
 		$db      = new Database();
+		$product = new Product();
 
 		// Procesamos la información
 //		error_log( "step: " . $step . " - count: " . $count );
@@ -49,9 +50,23 @@ class Process {
 				$ids_categories = array_map( 'intval', explode( '|', $row['category_id'] ) );
 				foreach ( $ids_categories as $id_category ) {
 					$id_woo_category = $db->get_woo_category_id_from_external_id( $id_category );
+
 					if ( $id_woo_category ) {
-						error_log( print_r( "SKU: " . $row['product_sku'], true ) );
+						$sku            = $product->build_sku( $row );
+						$id_woo_product = $product->get_id_product_by_sku( $sku );
+
+						if ( ! $id_woo_product ) {
+							$id_woo_product = $product->create_product( $row, $id_woo_category );
+							
+							if ( $id_woo_product ) {
+								error_log( print_r( "Producto creado: $id_woo_product", true ) );
+							}
+						} else {
+							$product->update_product( $id_woo_product, $id_woo_category );
+						}
+
 					}
+
 				}
 
 			}
