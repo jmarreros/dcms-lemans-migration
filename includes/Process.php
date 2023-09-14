@@ -3,7 +3,7 @@
 namespace dcms\lemans\includes;
 
 use dcms\lemans\database\Database;
-use SplFileObject;
+
 
 class Process {
 
@@ -22,7 +22,7 @@ class Process {
 	}
 
 	public function migrate_batch_products() {
-		$batch = 100;
+		$batch = 5;
 		$total = $_REQUEST['total'] ?? false;
 		$step  = $_REQUEST['step'] ?? 0;
 		$count = $step * $batch;
@@ -48,29 +48,34 @@ class Process {
 			if ( ! empty( $row['category_id'] ) ) {
 
 				$ids_categories = array_map( 'intval', explode( '|', $row['category_id'] ) );
+
+				// Fill categories woo
+				$ids_woo_categories = [];
 				foreach ( $ids_categories as $id_category ) {
 					$id_woo_category = $db->get_woo_category_id_from_external_id( $id_category );
-
 					if ( $id_woo_category ) {
-						$sku            = $product->build_sku( $row );
-						$id_woo_product = $product->get_id_product_by_sku( $sku );
-
-						if ( ! $id_woo_product ) {
-							$id_woo_product = $product->create_product( $row, $id_woo_category );
-							
-							if ( $id_woo_product ) {
-								error_log( print_r( "Producto creado: $id_woo_product", true ) );
-							}
-						} else {
-							$product->update_product( $id_woo_product, $id_woo_category );
-						}
-
+						$ids_woo_categories[] = $id_woo_category;
 					}
+				}
 
+				// If it has at least one valid Woo category, create or update product
+				if ( count( $ids_woo_categories ) > 0 ) {
+					$sku            = $product->build_sku( $row );
+					$id_woo_product = $product->get_id_product_by_sku( $sku );
+
+					if ( ! $id_woo_product ) {
+
+						$id_woo_product = $product->create_product( $row, $ids_woo_categories );
+
+						if ( $id_woo_product ) {
+							error_log( print_r( "Producto creado: $id_woo_product", true ) );
+						}
+					} else {
+						$product->update_product( $id_woo_product, $ids_woo_categories );
+					}
 				}
 
 			}
-
 		}
 
 		// TODO:

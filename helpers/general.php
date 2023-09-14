@@ -59,3 +59,16 @@ if ( ! function_exists( 'get_id_category_from_link' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_images_gallery_url' ) ) {
+	function get_images_gallery_url( $file_url ): array {
+		if ( empty( $file_url ) ) {
+			return [];
+		}
+		
+		$urls = explode( '|', $file_url );
+
+		return array_map( function ( $url ) {
+			return DCMS_LEMANS_EXTERNAL_DOMAIN . $url;
+		}, $urls );
+	}
+}

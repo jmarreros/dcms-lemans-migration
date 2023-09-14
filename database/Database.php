@@ -21,15 +21,7 @@ class Database {
 
 		return $id_woo_category ? (int) $id_woo_category : null;
 	}
+	
 }
 
 
-//if ( $id_woo_category ) {
-//			$woo_category = get_term( $id_woo_category, 'product_cat' );
-//
-//			if ( ! is_wp_error( $woo_category ) ) {
-//				return $woo_category;
-//			}
-//		}
-//
-//		return null;
