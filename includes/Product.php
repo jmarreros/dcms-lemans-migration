@@ -3,12 +3,16 @@
 namespace dcms\lemans\includes;
 
 use Automattic\WooCommerce\Admin\RemoteInboxNotifications\EvaluationLogger;
+use dcms\lemans\database\ExternalDB;
 use WC_Product_Simple;
 use Exception;
 
 class Product {
 
+	public ExternalDB $external_db;
+
 	public function __construct() {
+		$this->external_db = new ExternalDB();
 		dcms_include_files_library();
 	}
 
@@ -22,6 +26,7 @@ class Product {
 		$product_price       = $this->build_price( $row['product_price'] );
 		$product_description = $row['product_desc'];
 		$product_file_urls   = $row['file_url'];
+		$id_virtuemart       = $row['virtuemart_product_id'];
 
 		$product_woo = new WC_Product_Simple();
 
@@ -32,6 +37,8 @@ class Product {
 			$product_woo->set_price( $product_price );
 			$product_woo->set_regular_price( $product_price );
 			$product_woo->set_description( $product_description );
+			$product_woo->set_upsell_ids( $this->get_upsell_ids( $id_virtuemart ) );
+			$product_woo->update_meta_data( 'id_virtuemart', $id_virtuemart );
 
 			$ids_images = $this->get_ids_images_product_from_server( $product_file_urls );
 			if ( count( $ids_images ) > 0 ) {
@@ -51,7 +58,6 @@ class Product {
 
 	public function update_product( $id_woo_product, $id_woo_category ) {
 		error_log( print_r( "update - " . $id_woo_product, true ) );
-//		error_log( print_r( $id_woo_category, true ) );
 	}
 
 	public function build_sku( $row ): string {
@@ -93,6 +99,11 @@ class Product {
 		}
 
 		return $ids_images;
+	}
+
+	// Get related products
+	public function get_upsell_ids( $id_virtuemart ): array {
+		return array_map( 'intval', $this->external_db->get_related_products( $id_virtuemart ) );
 	}
 
 //	public function get_ids_images_product_from_url( $file_path ): array {

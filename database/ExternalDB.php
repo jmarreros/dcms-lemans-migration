@@ -67,5 +67,14 @@ class ExternalDB {
 
 		return $wpdb->get_var( $sql );
 	}
-	
+
+
+	public function get_related_products( $id_virtuemart ): array {
+		// virtuemart_custom_id = 1 is COM_VIRTUEMART_RELATED_PRODUCTS in evhfm_virtuemart_customs table
+		$wpdb = $this->cn;
+		$sql  = "SELECT custom_value FROM evhfm_virtuemart_product_customfields 
+                WHERE virtuemart_product_id = $id_virtuemart AND virtuemart_custom_id = 1";
+
+		return $wpdb->get_col( $sql );
+	}
 }

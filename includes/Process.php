@@ -22,7 +22,7 @@ class Process {
 	}
 
 	public function migrate_batch_products() {
-		$batch = 100;
+		$batch = 2;
 		$total = $_REQUEST['total'] ?? false;
 		$step  = $_REQUEST['step'] ?? 0;
 		$count = $step * $batch;
@@ -32,7 +32,6 @@ class Process {
 		$product = new Product();
 
 		// Procesamos la información
-//		error_log( "step: " . $step . " - count: " . $count );
 
 		$length = $count + $batch;
 		if ( $total ) {
@@ -52,7 +51,11 @@ class Process {
 				// Fill categories woo
 				$ids_woo_categories = [];
 				foreach ( $ids_categories as $id_category ) {
+
 					$id_woo_category = $db->get_woo_category_id_from_external_id( $id_category );
+
+					error_log( print_r( $id_woo_category, true ) );
+
 					if ( $id_woo_category ) {
 						$ids_woo_categories[] = $id_woo_category;
 					}
@@ -77,14 +80,6 @@ class Process {
 
 			}
 		}
-
-		// TODO:
-		// - Capturar la categoría de cada registro
-		// - Verificar si la categoría existe en la base de datos de WooCommerce
-		// - Si existe, verificar el resto de campos del producto
-		// - Verificar el SKU, no debe haber un SKU repetido
-		// - Verificar si es un producto variable o simple
-
 
 		$step ++;
 
