@@ -38,6 +38,7 @@ final class Loader {
 		define( 'DCMS_LEMANS_BASE_NAME', plugin_basename( __FILE__ ) );
 		define( 'DCMS_LEMANS_SUBMENU', 'tools.php' );
 		define( 'DCMS_LEMANS_EXTERNAL_DOMAIN', 'https://lemanscenter.es/' );
+		define( 'DCMS_LEMANS_SERVER_PATH', '/Users/jmarreros/www/pruebas/lemans/' );
 	}
 
 	// Load tex domain

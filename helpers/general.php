@@ -16,9 +16,9 @@ if ( ! function_exists( 'get_urls_menu' ) ) {
 		return [
 //			"llantas-vehiculo-actual-italianas-adaptables/llantas-adaptables-italianas",
 //			"llantas-para-vehiculos-coches-clasicos/llantas-braid",
-//			"llantas-para-vehiculos-coches-clasicos/llantas-japan-racing",
+			"llantas-para-vehiculos-coches-clasicos/llantas-japan-racing",
 //			"llantas-vehiculo-actual-italianas-adaptables/llantas-carbonado",
-//
+
 //			"llantas-para-vehiculos-coches-clasicos/llantas-targa",
 //			"llantas-para-vehiculos-coches-clasicos/llantas-cromodora",
 //			"llantas-para-vehiculos-coches-clasicos/llantas-minilite-style",
@@ -29,7 +29,7 @@ if ( ! function_exists( 'get_urls_menu' ) ) {
 ////			--"llantas-y-neumaticos/llantas-para-vehiculos-clasicos/llantas-lenso",
 ////			--"llantas-y-neumaticos/clasicos-lemanscenter/llantas-para-vhiculo-clasico/llantas-targa",
 //
-			"iluminacion/faros-y-accesorios",
+//			"iluminacion/faros-y-accesorios",
 //			"iluminacion/iluminacion/bombillas-y-leds",
 //
 //			"volantes/volantes-y-pinas",
@@ -59,16 +59,16 @@ if ( ! function_exists( 'get_id_category_from_link' ) ) {
 	}
 }
 
-if ( ! function_exists( 'get_images_gallery_url' ) ) {
-	function get_images_gallery_url( $file_url ): array {
+if ( ! function_exists( 'get_images_route' ) ) {
+	function get_images_route( $file_url, $route_before ): array {
 		if ( empty( $file_url ) ) {
 			return [];
 		}
-		
+
 		$urls = explode( '|', $file_url );
 
-		return array_map( function ( $url ) {
-			return DCMS_LEMANS_EXTERNAL_DOMAIN . $url;
+		return array_map( function ( $url ) use ( $route_before ) {
+			return $route_before . $url;
 		}, $urls );
 	}
 }

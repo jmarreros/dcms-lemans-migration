@@ -22,7 +22,7 @@ class Process {
 	}
 
 	public function migrate_batch_products() {
-		$batch = 5;
+		$batch = 100;
 		$total = $_REQUEST['total'] ?? false;
 		$step  = $_REQUEST['step'] ?? 0;
 		$count = $step * $batch;
