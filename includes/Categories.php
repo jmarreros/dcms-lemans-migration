@@ -14,12 +14,13 @@ class Categories {
 	}
 
 	public function migrate_categories( $path ) {
-		$woo_last_id_category = $this->create_parent_category( $path );
-		$woo_last_id_category = $this->create_current_category( $path, $woo_last_id_category );
-		$this->create_child_categories( $path, $woo_last_id_category );
+		$woo_last_id_category = $this->create_parent_category_menu( $path );
+		$woo_last_id_category = $this->create_current_category_menu( $path, $woo_last_id_category );
+		$this->create_child_categories_menu( $path, $woo_last_id_category );
+		$this->create_child_categories_by_id( $woo_last_id_category );
 	}
 
-	private function create_parent_category( $path ): ?int {
+	private function create_parent_category_menu( $path ): ?int {
 		// Get current menu path data
 		$path_parent_id = $this->externalDb->get_menu_parent_id_from_path( $path );
 
@@ -52,7 +53,7 @@ class Categories {
 		return $this->create_categories( $data_categories, true );
 	}
 
-	private function create_current_category( $path, $woo_last_id_category ): int {
+	private function create_current_category_menu( $path, $woo_last_id_category ): int {
 		// Get current menu path data
 		$row = $this->externalDb->get_menu_data_from_path( $path );
 
@@ -73,14 +74,17 @@ class Categories {
 		return $this->create_categories( $data_categories, false, $woo_last_id_category );
 	}
 
-	private function create_child_categories( $path, $woo_last_id_category, $current_id_category = 0 ): void {
+	private function create_child_categories_menu( $path, $woo_last_id_category, $current_id_category = 0 ): void {
 		// Get current menu path data
 		if ( ! empty( $path ) ) {
 			$current_id_category = $this->externalDb->get_menu_id_from_path( $path );
 		}
 
+		error_log( print_r( "Current id category : " . $current_id_category, true ) );
+
 		// Get all subcategories
 		$items = $this->externalDb->get_menu_items_data_from_parent_id( $current_id_category );
+
 
 		foreach ( $items as $item ) {
 			$data_categories = [];
@@ -97,9 +101,43 @@ class Categories {
 
 			$data_categories[]        = $data_category;
 			$woo_last_id_sub_category = $this->create_categories( $data_categories, false, $woo_last_id_category );
-			$this->create_child_categories( '', $woo_last_id_sub_category, intval( $item->id ) );
+			$this->create_child_categories_menu( '', $woo_last_id_sub_category, intval( $item->id ) );
 		}
 
+	}
+
+
+	public function create_child_categories_by_id( $woo_last_id_category, $current_id_category = 0 ) {
+
+		// Get id_category external
+		if ( ! $current_id_category ) {
+			$current_id_category = intval( get_term_meta( $woo_last_id_category, 'external_id', true ) );
+			if ( ! $current_id_category ) {
+				return;
+			}
+		}
+
+		// Get all subcategories
+		$items = $this->externalDb->get_categories_from_id( $current_id_category );
+
+		foreach ( $items as $item ) {
+			$data_categories = [];
+
+			// Data parent menu
+			$data_category = [
+				'id'          => $item->id,
+				'title'       => $item->category_name,
+				'slug'        => $item->slug,
+				'order'       => $item->ordering,
+				'parent_id'   => $item->category_parent_id,
+				'description' => $item->category_description,
+				'level'       => null,
+			];
+
+			$data_categories[]        = $data_category;
+			$woo_last_id_sub_category = $this->create_categories( $data_categories, false, $woo_last_id_category );
+			$this->create_child_categories_by_id( $woo_last_id_sub_category, intval( $item->id ) );
+		}
 	}
 
 	private function create_categories( $data_categories, $ancestors, $woo_parent_id = null ): int {
@@ -115,6 +153,7 @@ class Categories {
 			$external_menu_id = $data_category['id'];
 			$category_level   = $data_category['level'];
 			$category_order   = $data_category['order'];
+			$category_desc    = $data_category['description'] ?? '';
 
 			// Check if category exists
 			$term_data = term_exists( $category_title, 'product_cat' );
@@ -126,8 +165,9 @@ class Categories {
 			} // Category not exists, create category
 			else {
 				$term_data = wp_insert_term( $category_title, 'product_cat', [
-					'slug'   => $category_slug,
-					'parent' => $woo_parent_id
+					'slug'        => $category_slug,
+					'parent'      => $woo_parent_id,
+					'description' => $category_desc
 				] );
 
 				if ( ! is_wp_error( $term_data ) ) {
@@ -171,8 +211,4 @@ class Categories {
 		return $woo_category_id;
 	}
 
-
-	private function get_woo_category_from_external_id( $id_category ): ?int {
-		return null;
-	}
 }

@@ -68,6 +68,16 @@ class ExternalDB {
 		return $wpdb->get_var( $sql );
 	}
 
+	public function get_categories_from_id( $id_category ): ?array {
+		$wpdb = $this->cn;
+		$sql  = "SELECT virtuemart_category_id AS id, category_name, category_description, slug, category_parent_id, `ordering`  
+					FROM evhfm_virtuemart_categories_es_es c 
+					INNER JOIN evhfm_virtuemart_category_categories cc ON c.virtuemart_category_id = cc.category_child_id
+					WHERE cc.category_parent_id = $id_category";
+
+		return $wpdb->get_results( $sql );
+	}
+
 
 	public function get_related_products( $id_virtuemart ): array {
 		// virtuemart_custom_id = 1 is COM_VIRTUEMART_RELATED_PRODUCTS in evhfm_virtuemart_customs table

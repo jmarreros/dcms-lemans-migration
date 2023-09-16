@@ -19,6 +19,10 @@ if ( ! function_exists( 'get_urls_menu' ) ) {
 			"llantas-para-vehiculos-coches-clasicos/llantas-japan-racing",
 //			"llantas-vehiculo-actual-italianas-adaptables/llantas-carbonado",
 
+//          // TODO: es la misma categoría: "llantas-para-vehiculos-coches-clasicos/llantas-japan-racing"
+//			/// "llantas-vehiculo-actual-italianas-adaptables/llantas-japan-racing",
+
+
 //			"llantas-para-vehiculos-coches-clasicos/llantas-targa",
 //			"llantas-para-vehiculos-coches-clasicos/llantas-cromodora",
 //			"llantas-para-vehiculos-coches-clasicos/llantas-minilite-style",
