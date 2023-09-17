@@ -87,4 +87,25 @@ class ExternalDB {
 
 		return $wpdb->get_col( $sql );
 	}
+
+	// 49 es el ID de X = Editor, que guarda la descripción corta del producto
+	public function get_custom_short_description( $id_virtuemart ): ?string {
+		$wpdb = $this->cn;
+
+		$sql = "SELECT custom_value FROM evhfm_virtuemart_product_customfields 
+				WHERE virtuemart_product_id = $id_virtuemart AND virtuemart_custom_id = 49";
+
+		return $wpdb->get_var( $sql );
+	}
+
+	// V = Variable de carro, para formar el producto variable
+	public function get_custom_data_cart_variant( $id_virtuemart ): ?array {
+		$wpdb = $this->cn;
+		$sql  = "SELECT vc.custom_title, vpc.custom_value, vpc.custom_price, vpc.custom_param 
+				FROM evhfm_virtuemart_customs vc 
+				INNER JOIN evhfm_virtuemart_product_customfields vpc ON vc.virtuemart_custom_id = vpc.virtuemart_custom_id
+				WHERE vpc.virtuemart_product_id = $id_virtuemart AND vc.field_type = 'V' AND vc.published = 1";
+
+		return $wpdb->get_results( $sql );
+	}
 }

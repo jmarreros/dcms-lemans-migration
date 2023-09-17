@@ -76,3 +76,16 @@ if ( ! function_exists( 'get_images_route' ) ) {
 		}, $urls );
 	}
 }
+
+
+if ( ! function_exists( 'make_title_variation' ) ) {
+	function make_title_variation( $str ): string {
+		return sanitize_title( trim( str_replace( [
+			'seleccione',
+			'seleccionar',
+			'elegir',
+			':'
+		], '', trim( strtolower( $str ) ) ) ) );
+	}
+}
+
