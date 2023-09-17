@@ -51,35 +51,50 @@ class Product {
 		$product_woo = new WC_Product_Variable();
 
 		try {
-			$product_woo    = $this->set_general_product_data( $product_woo, $ids_woo_categories, $row );
-			$variation_name = make_title_variation( $product_variations[0]->custom_title );
+			$product_woo = $this->set_general_product_data( $product_woo, $ids_woo_categories, $row );
 
-			if ( ! $variation_name ) {
-				return 0;
+			// Save Attributes
+			$variation_title = '';
+			$attributes      = [];
+			$variations      = [];
+			$key             = 0;
+			foreach ( $product_variations as $product_variation ) {
+
+				if ( $product_variation->custom_title != $variation_title ) {
+					$variation_name = make_title_variation( $product_variation->custom_title );
+					$attribute      = new WC_Product_Attribute();
+					$attribute->set_name( $variation_name );
+					$attribute->set_options( $this->get_options_from_product_variations( $product_variations, $product_variation->custom_title ) );
+					$attribute->set_position( $key );
+					$attribute->set_visible( true );
+					$attribute->set_variation( true );
+					$attributes[] = $attribute;
+
+					$variation_title = $product_variation->custom_title;
+					$key ++;
+				}
+
+				$variations[ $key ][ $product_variation->custom_value ] = floatval( $product_variation->custom_price );
 			}
 
-			$attribute = new WC_Product_Attribute();
-			$attribute->set_name( $variation_name );
-			$attribute->set_options( [ 'elemento1', 'elemento2', 'elemento3' ] );
-			$attribute->set_position( 0 );
-			$attribute->set_visible( true );
-			$attribute->set_variation( true );
-
-			$product_woo->set_attributes( [ $attribute ] );
+			if ( $attributes ) {
+				$product_woo->set_attributes( $attributes );
+			}
 
 			$id_product_woo = $product_woo->save();
 
-			$variation = new WC_Product_Variation();
-			$variation->set_parent_id( $id_product_woo );
-			$variation->set_attributes( [ $variation_name => 'elemento1' ] );
-			$variation->set_regular_price( 100 );
-			$variation->save();
+			// Save Variations per Attribute
+			foreach ( $attributes as $key => $attribute ) {
 
-			$variation = new WC_Product_Variation();
-			$variation->set_parent_id( $id_product_woo );
-			$variation->set_attributes( [ $variation_name => 'elemento2' ] );
-			$variation->set_regular_price( 200 );
-			$variation->save();
+				foreach ( $variations[ $key + 1 ] as $variation_key => $variation_price ) {
+					$variation = new WC_Product_Variation();
+					$variation->set_parent_id( $id_product_woo );
+					$variation->set_attributes( [ $attribute->get_name() => $variation_key ] );
+					$variation->set_regular_price( $variation_price );
+					$variation->save();
+				}
+
+			}
 
 			return $id_product_woo;
 
@@ -165,6 +180,17 @@ class Product {
 		return $this->external_db->get_custom_short_description( $id_virtuemart );
 	}
 
+	private function get_options_from_product_variations( $product_variations, $variation_title ): array {
+		$options = [];
+		foreach ( $product_variations as $product_variation ) {
+			if ( $product_variation->custom_title == $variation_title ) {
+				$options[] = $product_variation->custom_value;
+			}
+		}
+
+		return $options;
+	}
+
 	// Get related products
 	//TODO: Deben guardarse todos los productos primero
 	public function get_upsell_ids( $id_virtuemart ): array {
@@ -173,3 +199,35 @@ class Product {
 
 
 }
+
+
+
+//			$variations = [];
+//			foreach ( $product_variations as $product_variation ) {
+//				$variations[ $product_variation->custom_value ] = floatval( $product_variation->custom_price );
+//			}
+//			error_log( print_r( $product_variations, true ) );
+//			error_log( print_r( $variations, true ) );
+
+//			$attribute = new WC_Product_Attribute();
+//			$attribute->set_name( $variation_name );
+//			$attribute->set_options( [ 'elemento1', 'elemento2', 'elemento3' ] );
+//			$attribute->set_position( 0 );
+//			$attribute->set_visible( true );
+//			$attribute->set_variation( true );
+//
+//			$product_woo->set_attributes( [ $attribute ] );
+//
+//			$id_product_woo = $product_woo->save();
+
+//			$variation = new WC_Product_Variation();
+//			$variation->set_parent_id( $id_product_woo );
+//			$variation->set_attributes( [ $variation_name => 'elemento1' ] );
+//			$variation->set_regular_price( 100 );
+//			$variation->save();
+//
+//			$variation = new WC_Product_Variation();
+//			$variation->set_parent_id( $id_product_woo );
+//			$variation->set_attributes( [ $variation_name => 'elemento2' ] );
+//			$variation->set_regular_price( 200 );
+//			$variation->save();
