@@ -17,8 +17,6 @@ class Database {
 		$tbl_terms = $this->wpdb->prefix . 'termmeta';
 		$sql       = "SELECT term_id FROM $tbl_terms WHERE meta_key = 'external_id' AND meta_value = '$id'";
 
-		error_log( print_r( $sql, true ) );
-
 		$id_woo_category = $this->wpdb->get_var( $sql );
 
 		return $id_woo_category ? (int) $id_woo_category : null;

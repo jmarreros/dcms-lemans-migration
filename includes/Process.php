@@ -22,7 +22,7 @@ class Process {
 	}
 
 	public function migrate_batch_products() {
-		$batch = 2;
+		$batch = 100;
 		$total = $_REQUEST['total'] ?? false;
 		$step  = $_REQUEST['step'] ?? 0;
 		$count = $step * $batch;
@@ -54,8 +54,6 @@ class Process {
 
 					$id_woo_category = $db->get_woo_category_id_from_external_id( $id_category );
 
-					error_log( print_r( $id_woo_category, true ) );
-
 					if ( $id_woo_category ) {
 						$ids_woo_categories[] = $id_woo_category;
 					}
@@ -67,7 +65,6 @@ class Process {
 					$id_woo_product = $product->get_id_product_by_sku( $sku );
 
 					if ( ! $id_woo_product ) {
-
 						$id_woo_product = $product->create_product( $row, $ids_woo_categories );
 
 						if ( $id_woo_product ) {

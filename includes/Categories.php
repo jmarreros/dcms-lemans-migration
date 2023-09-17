@@ -106,7 +106,6 @@ class Categories {
 
 	}
 
-
 	public function create_child_categories_by_id( $woo_last_id_category, $current_id_category = 0 ) {
 
 		// Get id_category external
@@ -123,7 +122,7 @@ class Categories {
 		foreach ( $items as $item ) {
 			$data_categories = [];
 
-			// Data parent menu
+			// Data parent category
 			$data_category = [
 				'id'          => $item->id,
 				'title'       => $item->category_name,
@@ -132,6 +131,7 @@ class Categories {
 				'parent_id'   => $item->category_parent_id,
 				'description' => $item->category_description,
 				'level'       => null,
+				'external_id' => $item->id, //Pass external virtuemart category id
 			];
 
 			$data_categories[]        = $data_category;
@@ -148,12 +148,13 @@ class Categories {
 		$woo_category_id = 0;
 
 		foreach ( $data_categories as $data_category ) {
-			$category_title   = $data_category['title'];
-			$category_slug    = $data_category['slug'];
-			$external_menu_id = $data_category['id'];
-			$category_level   = $data_category['level'];
-			$category_order   = $data_category['order'];
-			$category_desc    = $data_category['description'] ?? '';
+			$category_title       = $data_category['title'];
+			$category_slug        = $data_category['slug'];
+			$external_menu_id     = $data_category['id'];
+			$category_level       = $data_category['level'];
+			$category_order       = $data_category['order'];
+			$category_desc        = $data_category['description'] ?? '';
+			$category_external_id = $data_category['external_id'] ?? 0;
 
 			// Check if category exists
 			$term_data = term_exists( $category_title, 'product_cat' );
@@ -172,27 +173,27 @@ class Categories {
 
 				if ( ! is_wp_error( $term_data ) ) {
 					error_log( print_r( 'Category added : ' . $category_title . '-' . $woo_category_id, true ) );
-
 					$woo_category_id = $term_data['term_id'];
-					$link            = $this->externalDb->get_link_from_id_menu( $external_menu_id );
+					$id_category     = $category_external_id;
 
-					if ( $link ) {
+					if ( ! $id_category ) {
+						$link        = $this->externalDb->get_link_from_id_menu( $external_menu_id );
 						$id_category = get_id_category_from_link( $link );
+					}
 
+					if ( $id_category ) {
 						// Add terms metadata
 						add_term_meta( $woo_category_id, 'external_id', $id_category, true );
 						add_term_meta( $woo_category_id, 'external_level', $category_level, true );
 						update_term_meta( $woo_category_id, 'order', $category_order );
 
 						//Add image category
-						if ( $id_category ) {
-							$image_url = $this->externalDb->get_url_image_category( $id_category );
-							if ( $image_url ) {
-								$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
-								$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
-								if ( ! is_wp_error( $id_image ) ) {
-									update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
-								}
+						$image_url = $this->externalDb->get_url_image_category( $id_category );
+						if ( $image_url ) {
+							$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
+							$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
+							if ( ! is_wp_error( $id_image ) ) {
+								update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
 							}
 						}
 					}
