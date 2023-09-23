@@ -27,11 +27,17 @@ class Product {
 		$id_virtuemart      = $row['virtuemart_product_id'];
 		$product_variations = $this->external_db->get_custom_data_cart_variant( $id_virtuemart );
 
-		if ( $product_variations ) {
-			return $this->create_variable_product( $row, $ids_woo_categories, $product_variations );
+		if ( $product_variations ) { // Variable product
+			$product_woo_id = $this->create_variable_product( $row, $ids_woo_categories, $product_variations );
+		} else { // Simple product
+			$product_woo_id = $this->create_simple_product( $row, $ids_woo_categories );
 		}
 
-		return $this->create_simple_product( $row, $ids_woo_categories );
+		if ( $product_woo_id ) { // Create brands integration
+			$this->create_brands( $row, $product_woo_id );
+		}
+
+		return $product_woo_id;
 	}
 
 	private function create_simple_product( $row, $ids_woo_categories ): int {
@@ -83,6 +89,8 @@ class Product {
 
 			$id_product_woo = $product_woo->save();
 
+			$price = floatval( $product_woo->get_price() );
+
 			// Save Variations per Attribute
 			foreach ( $attributes as $key => $attribute ) {
 
@@ -90,7 +98,7 @@ class Product {
 					$variation = new WC_Product_Variation();
 					$variation->set_parent_id( $id_product_woo );
 					$variation->set_attributes( [ $attribute->get_name() => $variation_key ] );
-					$variation->set_regular_price( $variation_price );
+					$variation->set_regular_price( floatval( $variation_price ) + $price );
 					$variation->save();
 				}
 
@@ -191,43 +199,30 @@ class Product {
 		return $options;
 	}
 
+	// Create brands
+	public function create_brands( $row, $product_woo_id ): void {
+		$brand = trim( $row['manufacturer_name'] ?? '' );
+
+		if ( ! empty( $brand ) ) {
+			$term = term_exists( $brand, 'product_brand' );
+
+			if ( ! $term ) {
+				$term = wp_insert_term( $brand, 'product_brand' );
+				if ( is_wp_error( $term ) ) {
+					error_log( print_r( 'Error create brand', true ) );
+				}
+			}
+
+			if ( ! is_wp_error( $term ) && isset ( $term['term_id'] ) ) {
+				wp_set_object_terms( $product_woo_id, intval( $term['term_id'] ), 'product_brand' );
+				error_log( print_r( 'Brand asignada', true ) );
+			}
+		}
+	}
+
 	// Get related products
 	//TODO: Deben guardarse todos los productos primero
 	public function get_upsell_ids( $id_virtuemart ): array {
 		return array_map( 'intval', $this->external_db->get_related_products( $id_virtuemart ) );
 	}
-
-
 }
-
-
-
-//			$variations = [];
-//			foreach ( $product_variations as $product_variation ) {
-//				$variations[ $product_variation->custom_value ] = floatval( $product_variation->custom_price );
-//			}
-//			error_log( print_r( $product_variations, true ) );
-//			error_log( print_r( $variations, true ) );
-
-//			$attribute = new WC_Product_Attribute();
-//			$attribute->set_name( $variation_name );
-//			$attribute->set_options( [ 'elemento1', 'elemento2', 'elemento3' ] );
-//			$attribute->set_position( 0 );
-//			$attribute->set_visible( true );
-//			$attribute->set_variation( true );
-//
-//			$product_woo->set_attributes( [ $attribute ] );
-//
-//			$id_product_woo = $product_woo->save();
-
-//			$variation = new WC_Product_Variation();
-//			$variation->set_parent_id( $id_product_woo );
-//			$variation->set_attributes( [ $variation_name => 'elemento1' ] );
-//			$variation->set_regular_price( 100 );
-//			$variation->save();
-//
-//			$variation = new WC_Product_Variation();
-//			$variation->set_parent_id( $id_product_woo );
-//			$variation->set_attributes( [ $variation_name => 'elemento2' ] );
-//			$variation->set_regular_price( 200 );
-//			$variation->save();
