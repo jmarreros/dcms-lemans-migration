@@ -2,6 +2,7 @@
 
 namespace dcms\lemans\includes;
 
+use dcms\lemans\database\Database;
 use dcms\lemans\database\ExternalDB;
 use WC_Product;
 use WC_Product_Attribute;
@@ -13,9 +14,12 @@ use Exception;
 class Product {
 
 	public ExternalDB $external_db;
+	public Database $db;
 
 	public function __construct() {
 		$this->external_db = new ExternalDB();
+		$this->db          = new Database();
+
 		dcms_include_files_library();
 	}
 
@@ -152,9 +156,11 @@ class Product {
 		foreach ( $woo_products as $woo_product ) {
 			$id_virtuemart = $woo_product->get_meta( 'id_virtuemart' );
 			$upsell_ids    = $this->get_upsell_ids( $id_virtuemart );
-			error_log( print_r( $upsell_ids, true ) );
+
 			if ( $upsell_ids ) {
 				$woo_product->set_upsell_ids( $upsell_ids );
+				error_log( print_r( 'Process related product: ' . $woo_product->get_id(), true ) );
+				error_log( print_r( $upsell_ids, true ) );
 				$woo_product->save();
 			}
 		}
@@ -242,9 +248,9 @@ class Product {
 		$ids_woo_related = [];
 		$ids_virtuemart  = array_map( 'intval', $this->external_db->get_related_products( $id_virtuemart ) );
 
-		// Search this products in woo products
-		// Acomodar datos para que haya relacionados
-		
+		if ( $ids_virtuemart ) {
+			$ids_woo_related = $this->db->get_woo_product_ids_from_external_ids( $ids_virtuemart );
+		}
 
 		return $ids_woo_related;
 	}

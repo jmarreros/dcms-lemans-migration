@@ -103,4 +103,15 @@ class Process {
 		wp_send_json( $res );
 	}
 
+	public function process_related_products() {
+		$product = new Product();
+		$product->update_related_products();
+
+		$res = [
+			'status'  => 1,
+			'message' => 'Productos relacionados procesados'
+		];
+
+		wp_send_json( $res );
+	}
 }

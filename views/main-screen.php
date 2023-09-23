@@ -53,8 +53,8 @@
 					<?php _e( 'Related products', 'lemans-migration' ); ?>
                 </button>
 
-                <div class="process-info" style="margin-top:10px"></div>
-
+                <span class="msg-btn"></span>
+                <div class="loading hide"></div>
             </td>
         </tr>
         </tbody>

@@ -21,8 +21,8 @@ class Configuration {
 	}
 
 	public function process_related_products() {
-		wp_send_json( [ 'message' => "Productos relacionados procesados", 'status' => 1, 'data' => null ] );
-		
+		$process_products = new Process();
+		$process_products->process_related_products();
 	}
 
 }
