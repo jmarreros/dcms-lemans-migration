@@ -19,7 +19,6 @@
         </tbody>
     </table>
 
-
     <hr>
 
     <table class="form-table migrate-products">
@@ -41,4 +40,23 @@
         </tbody>
     </table>
 
+    <hr>
+
+    <table class="form-table related-products">
+        <tbody>
+        <tr id="related-products">
+            <th scope="row">
+				<?php _e( 'Related products', 'lemans-migration' ) ?>
+            </th>
+            <td>
+                <button id='process-related-products' class="button button-primary">
+					<?php _e( 'Related products', 'lemans-migration' ); ?>
+                </button>
+
+                <div class="process-info" style="margin-top:10px"></div>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </section>

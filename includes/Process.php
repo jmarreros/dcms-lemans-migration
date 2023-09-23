@@ -71,7 +71,7 @@ class Process {
 							error_log( print_r( "Producto creado: $id_woo_product", true ) );
 						}
 					} else {
-						$product->update_product( $id_woo_product, $ids_woo_categories );
+						$product->update_product( $id_woo_product );
 					}
 				}
 

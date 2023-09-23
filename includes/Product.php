@@ -139,8 +139,25 @@ class Product {
 		return $product_woo;
 	}
 
-	public function update_product( $id_woo_product, $id_woo_category ) {
-		error_log( print_r( "update - " . $id_woo_product, true ) );
+	public function update_product( $id_woo_product ) {
+		error_log( "Product exits - " . $id_woo_product . " - No modifications" );
+	}
+
+	// Update related products after migration
+	public function update_related_products() {
+		$woo_products = wc_get_products( array(
+			'limit' => - 1,
+		) );
+
+		foreach ( $woo_products as $woo_product ) {
+			$id_virtuemart = $woo_product->get_meta( 'id_virtuemart' );
+			$upsell_ids    = $this->get_upsell_ids( $id_virtuemart );
+			error_log( print_r( $upsell_ids, true ) );
+			if ( $upsell_ids ) {
+				$woo_product->set_upsell_ids( $upsell_ids );
+				$woo_product->save();
+			}
+		}
 	}
 
 	public function build_sku( $row ): string {
@@ -221,8 +238,15 @@ class Product {
 	}
 
 	// Get related products
-	//TODO: Deben guardarse todos los productos primero
 	public function get_upsell_ids( $id_virtuemart ): array {
-		return array_map( 'intval', $this->external_db->get_related_products( $id_virtuemart ) );
+		$ids_woo_related = [];
+		$ids_virtuemart  = array_map( 'intval', $this->external_db->get_related_products( $id_virtuemart ) );
+
+		// Search this products in woo products
+		// Acomodar datos para que haya relacionados
+		
+
+		return $ids_woo_related;
 	}
+
 }

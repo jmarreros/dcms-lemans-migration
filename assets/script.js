@@ -6,6 +6,11 @@
         dcms_generic_ajax_call('.init-categories', 'dcms_migrate_initial_category');
     });
 
+    $('.related-products .button').click(function (e) {
+        e.preventDefault();
+        dcms_generic_ajax_call('.related-products', 'dcms_process_related_products');
+    });
+
 
 // Reuse code generic ajax call with jquery
     function dcms_generic_ajax_call(selector_container, action_method) {
