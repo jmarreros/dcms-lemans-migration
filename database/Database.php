@@ -26,8 +26,6 @@ class Database {
 		$tbl_postmeta = $this->wpdb->postmeta;
 		$sql          = "SELECT post_id FROM $tbl_postmeta WHERE meta_value IN (" . implode( ',', $external_ids ) . " )";
 
-		error_log( print_r( $sql, true ) );
-
 		return $this->wpdb->get_col( $sql );
 	}
 }

@@ -80,11 +80,8 @@ class Categories {
 			$current_id_category = $this->externalDb->get_menu_id_from_path( $path );
 		}
 
-		error_log( print_r( "Current id category : " . $current_id_category, true ) );
-
 		// Get all subcategories
 		$items = $this->externalDb->get_menu_items_data_from_parent_id( $current_id_category );
-
 
 		foreach ( $items as $item ) {
 			$data_categories = [];
@@ -156,13 +153,13 @@ class Categories {
 			$category_desc        = $data_category['description'] ?? '';
 			$category_external_id = $data_category['external_id'] ?? 0;
 
-			// Check if category exists
-			$term_data = term_exists( $category_title, 'product_cat' );
+			// Check if category exists by slug
+			$category_term = get_term_by( 'slug', $category_slug, 'product_cat', ARRAY_A );
 
 			// Category exists, get id_category
-			if ( ! is_null( $term_data ) ) {
+			if ( $category_term ) {
 				error_log( print_r( 'Category exists : ' . $category_title . '-' . $woo_category_id, true ) );
-				$woo_category_id = $term_data['term_id'];
+				$woo_category_id = $category_term['term_id'];
 			} // Category not exists, create category
 			else {
 				$term_data = wp_insert_term( $category_title, 'product_cat', [
@@ -188,14 +185,14 @@ class Categories {
 						update_term_meta( $woo_category_id, 'order', $category_order );
 
 						//Add image category
-						$image_url = $this->externalDb->get_url_image_category( $id_category );
-						if ( $image_url ) {
-							$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
-							$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
-							if ( ! is_wp_error( $id_image ) ) {
-								update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
-							}
-						}
+//						$image_url = $this->externalDb->get_url_image_category( $id_category );
+//						if ( $image_url ) {
+//							$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
+//							$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
+//							if ( ! is_wp_error( $id_image ) ) {
+//								update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
+//							}
+//						}
 					}
 
 				} else {

@@ -132,7 +132,13 @@ class Product {
 		$product_woo->set_regular_price( $product_price );
 		$product_woo->set_description( $product_description );
 		$product_woo->update_meta_data( 'id_virtuemart', $id_virtuemart );
-		$product_woo->set_short_description( $this->get_custom_short_description( $id_virtuemart ) );
+		$product_woo->set_short_description( $this->get_custom_short_description( $id_virtuemart ) ?? '' );
+		$product_woo->set_status( $row['published'] == 1 ? 'publish' : 'draft' );
+
+		$product_woo->set_height( round_dimensions( $row['product_height'] ) );
+		$product_woo->set_length( round_dimensions( $row['product_length'] ) );
+		$product_woo->set_width( round_dimensions( $row['product_width'] ) );
+		$product_woo->set_weight( round_dimensions( $row['product_weight'] ) );
 
 //		$ids_images = $this->get_ids_images_product_from_server( $product_file_urls );
 //		if ( count( $ids_images ) > 0 ) {
