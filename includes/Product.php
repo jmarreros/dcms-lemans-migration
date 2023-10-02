@@ -140,16 +140,17 @@ class Product {
 		$product_woo->set_width( round_dimensions( $row['product_width'] ) );
 		$product_woo->set_weight( round_dimensions( $row['product_weight'] ) );
 
-//		$ids_images = $this->get_ids_images_product_from_server( $product_file_urls );
-//		if ( count( $ids_images ) > 0 ) {
-//			$product_woo->set_image_id( $ids_images[0] );
-//			$product_woo->set_gallery_image_ids( $ids_images );
-//		}
+		$ids_images = $this->get_ids_images_product_from_server( $product_file_urls );
+		if ( count( $ids_images ) > 0 ) {
+			$product_woo->set_image_id( $ids_images[0] );
+			$product_woo->set_gallery_image_ids( $ids_images );
+		}
 
 		return $product_woo;
 	}
 
-	public function update_product( $id_woo_product ) {
+	public function update_product( $row, $id_woo_product ) {
+		$this->create_brands( $row, $id_woo_product );
 		error_log( "Product exits - " . $id_woo_product . " - No modifications" );
 	}
 
@@ -229,8 +230,13 @@ class Product {
 	}
 
 	// Create brands
-	public function create_brands( $row, $product_woo_id ): void {
-		$brand = trim( $row['manufacturer_name'] ?? '' );
+	public function create_brands( $data_brand, $product_woo_id ): void {
+
+		if ( is_array( $data_brand ) ) {
+			$brand = trim( $data_brand['manufacturer_name'] ?? '' );
+		} else {
+			$brand = trim( $data_brand );
+		}
 
 		if ( ! empty( $brand ) ) {
 			$term = term_exists( $brand, 'product_brand' );
@@ -239,12 +245,18 @@ class Product {
 				$term = wp_insert_term( $brand, 'product_brand' );
 				if ( is_wp_error( $term ) ) {
 					error_log( print_r( 'Error create brand', true ) );
+					error_log( print_r( $term->get_error_message(), true ) );
 				}
 			}
 
 			if ( ! is_wp_error( $term ) && isset ( $term['term_id'] ) ) {
-				wp_set_object_terms( $product_woo_id, intval( $term['term_id'] ), 'product_brand' );
-				error_log( print_r( 'Brand asignada', true ) );
+				$has_brand = wp_get_object_terms( $product_woo_id, 'product_brand' );
+				if ( empty( $has_brand ) ) {
+					wp_set_object_terms( $product_woo_id, intval( $term['term_id'] ), 'product_brand' );
+					error_log( print_r( 'Brand asignada', true ) );
+				} else {
+					error_log( print_r( 'Ya tiene Brand asignada', true ) );
+				}
 			}
 		}
 	}

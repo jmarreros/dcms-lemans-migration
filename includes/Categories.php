@@ -185,14 +185,14 @@ class Categories {
 						update_term_meta( $woo_category_id, 'order', $category_order );
 
 						//Add image category
-//						$image_url = $this->externalDb->get_url_image_category( $id_category );
-//						if ( $image_url ) {
-//							$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
-//							$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
-//							if ( ! is_wp_error( $id_image ) ) {
-//								update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
-//							}
-//						}
+						$image_url = $this->externalDb->get_url_image_category( $id_category );
+						if ( $image_url ) {
+							$image_url = DCMS_LEMANS_EXTERNAL_DOMAIN . $image_url;
+							$id_image  = media_sideload_image( $image_url, 0, null, 'id' );
+							if ( ! is_wp_error( $id_image ) ) {
+								update_term_meta( $woo_category_id, 'thumbnail_id', $id_image );
+							}
+						}
 					}
 
 				} else {
