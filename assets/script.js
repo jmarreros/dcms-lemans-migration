@@ -11,6 +11,10 @@
         dcms_generic_ajax_call('.related-products', 'dcms_process_related_products');
     });
 
+    $('.clean-products .button').click(function (e) {
+        e.preventDefault();
+        dcms_generic_ajax_call('.clean-products', 'dcms_process_clean_products');
+    });
 
 // Reuse code generic ajax call with jquery
     function dcms_generic_ajax_call(selector_container, action_method) {

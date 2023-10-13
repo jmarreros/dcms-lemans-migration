@@ -253,7 +253,7 @@ class Product {
 				$has_brand = wp_get_object_terms( $product_woo_id, 'product_brand' );
 				if ( empty( $has_brand ) ) {
 					wp_set_object_terms( $product_woo_id, intval( $term['term_id'] ), 'product_brand' );
-					error_log( print_r( 'Brand asignada', true ) );
+					error_log( print_r( 'Brand asignada correctamente', true ) );
 				} else {
 					error_log( print_r( 'Ya tiene Brand asignada', true ) );
 				}
@@ -273,4 +273,28 @@ class Product {
 		return $ids_woo_related;
 	}
 
+	// Fix image description path
+	public function fix_image_path(): void {
+		$woo_products = wc_get_products( array(
+			'limit' => - 1,
+		) );
+
+		foreach ( $woo_products as $woo_product ) {
+			$description       = $woo_product->get_description();
+			$short_description = $woo_product->get_short_description();
+
+			$pattern     = '/"(images\/)(.*)/i';
+			$replacement = '"/${1}${2}';
+
+			$description       = preg_replace( $pattern, $replacement, $description );
+			$short_description = preg_replace( $pattern, $replacement, $short_description );
+
+			$woo_product->set_description( $description );
+			$woo_product->set_short_description( $short_description );
+			$woo_product->save();
+		}
+	}
+
 }
+
+

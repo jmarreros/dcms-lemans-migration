@@ -59,4 +59,23 @@
         </tr>
         </tbody>
     </table>
+
+    <table class="form-table clean-products">
+        <tbody>
+        <tr id="clean-products">
+            <th scope="row">
+				<?php _e( 'Clean products', 'lemans-migration' ) ?>
+            </th>
+            <td>
+                <button id='process-clean-products' class="button button-primary">
+					<?php _e( 'Clean products', 'lemans-migration' ); ?>
+                </button>
+
+                <span class="msg-btn"></span>
+                <div class="loading hide"></div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
 </section>

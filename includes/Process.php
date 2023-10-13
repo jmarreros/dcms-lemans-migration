@@ -114,4 +114,17 @@ class Process {
 
 		wp_send_json( $res );
 	}
+
+	// Fix description image path
+	public function process_fix_image_path() {
+		$product = new Product();
+		$product->fix_image_path();
+
+		$res = [
+			'status'  => 1,
+			'message' => 'Rutas de imágenes procesada'
+		];
+
+		wp_send_json( $res );
+	}
 }
